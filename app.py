@@ -14,6 +14,9 @@ def who_are_we():
 def get_help():
     return render_template('gethelp.html')
 
+@app.route('/addtodb')
+def add_to_db():
+    return render_template('addtodb.html')
 
 if __name__ == '__main__':
     app.run(debug=True)
