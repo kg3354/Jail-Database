@@ -4,16 +4,74 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Welcome</title>
-    <link href="{{ url_for('static', filename='style.css') }}" rel="stylesheet">
+    <style>
+        body, html {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif; /* Consistent font styling */
+        }
+
+        .header {
+            text-align: left;
+            padding: 20px;
+            background-color: rgba(0,0,0,0.8);
+            color: white;
+        }
+
+        .header nav a {
+            margin-right: 20px;
+            font-size: 20px;
+            color: white;
+            text-decoration: none; /* Removes underline from links */
+        }
+
+        .welcome {
+            background-image: url('/static/jailpic.jpg');
+            height: 100vh;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-size: cover;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5); /* Adds shadow to text for better readability */
+        }
+
+        .content {
+            text-align: left;
+            padding: 20px;
+            background-color: rgba(0,0,0,0.5);
+            color: white;
+            border-radius: 10px; /* Adds rounded corners to content boxes */
+        }
+
+        h1, p {
+            font-size: 24px;
+        }
+    </style>
 </head>
 <body>
 
-<div class="welcome">
-    <h1>Welcome to Our Jail Database</h1>
-    <a href="/whoarewe">Who Are We?</a>
-    <a href="/gethelp">Get Help</a>
-    <a href="/addtodb">Add to Database</a>
+<div class="header">
+    <nav>
+        <a href="/whoarewe">Who Are We?</a>
+        <a href="/view_criminals">Criminal List</a>
+        <a href="/view_crimes">Crime List</a>
+        <a href="/view_officers">Wonderful Officers</a>
+        <a href="/gethelp">Get Help</a>
+        <a href="/login">Login</a>
+        <a href="{{ url_for('register') }}">Register here</a>
+        <a href="/logout">Logout</a>
+    </nav>
 </div>
+
+<div class="welcome">
+    <h1 style="color: white;">Welcome to Our Jail Database</h1>
+    <p style="color: white;">This is the main access point to all criminal, crime, and officer data. Use the navigation above to explore different sections.</p>
+</div>
+
 </body>
 </html>
-

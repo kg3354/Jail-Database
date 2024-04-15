@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>View and Add Criminals</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <link href="{{ url_for('static', filename='style.css') }}" rel="stylesheet">
+    <style>
+        body {
+            background-image: url('./static/addtojail.jpg');
+            background-size: cover;
+            background-position: center;
+        }
+        .container, .content {
+            background: rgba(255, 255, 255, 0.8); /* Add a white semi-transparent background */
+            margin-top: 20px;
+            padding: 20px;
+            border-radius: 10px;
+        }
+        .header {
+            margin-bottom: 20px;
+        }
+        .message, .add-more-button {
+            display: none; /* Initially hide the message and Add More button */
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <nav class="navbar navbar-expand-lg navbar-light bg-light">
+            <a class="navbar-brand" style="color: black;">Criminal Records</a>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav">
+                    <li class="nav-item active">
+                        <a class="nav-link" href="/">Home <span class="sr-only">(current)</span></a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/whoarewe">Who Are We?</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/gethelp">Get Help</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/logout">Logout</a>
+                    </li>
+                    
+                </ul>
+            </div>
+        </nav>
+    </div>
+
+    <div class="container">
+        <h2>Criminals List</h2>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Criminal ID</th>
+                    <th>Last Name</th>
+                    <th>First Name</th>
+                    <th>Street</th>
+                    <th>City</th>
+                    <th>State Code</th>
+                    <th>Zip</th>
+                    <th>Phone</th>
+                    <th>Victim Status</th>
+                    <th>Parole Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for criminal in criminals %}
+                <tr>
+                    <td>{{ criminal['Criminal_ID'] }}</td>
+                    <td>{{ criminal['Last_name'] }}</td>
+                    <td>{{ criminal['First_name'] }}</td>
+                    <td>{{ criminal['Street'] }}</td>
+                    <td>{{ criminal['City'] }}</td>
+                    <td>{{ criminal['State_code'] }}</td>
+                    <td>{{ criminal['Zip'] }}</td>
+                    <td>{{ criminal['Phone'] }}</td>
+                    <td>{{ criminal['V_status'] }}</td>
+                    <td>{{ criminal['P_Status'] }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% if role == 'w' %}
+    <div class="content">
+        <h2 style="color: black;">Add a Criminal Record:</h2>
+        <form id="addCriminalsForm" action="/add_criminals" method="POST">
+
+
+            <!-- Form fields -->
+        <label for="last" style="color: black;">Last Name:</label>
+        <input type="text" id="last" name="last" required maxlength="15"><br>
+        
+        <label for="first" style="color: black;">First Name:</label>
+        <input type="text" id="first" name="first" required maxlength="10"><br>
+        
+        <label for="street" style="color: black;">Street:</label>
+        <input type="text" id="street" name="street" required maxlength="30"><br>
+        
+        <label for="city" style="color: black;">City:</label>
+        <input type="text" id="city" name="city" required maxlength="20"><br>
+        
+        <label for="state" style="color: black;">State:</label>
+        <input type="text" id="state" name="state" required maxlength="2"><br>
+        
+        <label for="zip" style="color: black;">Zip:</label>
+        <input type="text" id="zip" name="zip" required maxlength="5"><br>
+        
+        <label for="phone" style="color: black;">Phone:</label>
+        <input type="text" id="phone" name="phone" required maxlength="10"><br>
+        
+        <label for="v_status" style="color: black;">Victim Status (Y/N):</label>
+        <select id="v_status" name="v_status">
+            <option value="Y">Yes</option>
+            <option value="N" selected>No</option>
+        </select><br>
+        
+        <label for="p_status" style="color: black;">Parole Status (Y/N):</label>
+        <select id="p_status" name="p_status">
+            <option value="Y">Yes</option>
+            <option value="N" selected>No</option>
+        </select><br>
+        
+        <input type="submit" value="Add Criminal">
+        </form>
+        <div class="message">
+            <p>Criminal record added successfully!</p>
+        </div>
+        <button class="add-more-button" onclick="addMore()">Add More</button>
+    </div>
+
+    <script>
+        document.getElementById('addCriminalForm').onsubmit = function(event) {
+            event.preventDefault(); // Prevent form submission for the demo
+            document.querySelector('.message').style.display = 'block';
+            document.querySelector('.add-more-button').style.display = 'inline-block'; // Show the Add More button
+        };
+
+        function addMore() {
+            document.querySelector('.message').style.display = 'none';
+            document.querySelector('.add-more-button').style.display = 'none'; // Hide the Add More button and message
+            document.getElementById('addCriminalForm').reset(); // Reset form for new input
+            document.getElementById('last').focus();
+        }
+    </script>
+    {% else %}
+    <div class="content">
+        <p style="color: black;">You do not have permission to report a crime.</p>
+    </div>
+    {% endif %}
+</body>
+</html>
+
