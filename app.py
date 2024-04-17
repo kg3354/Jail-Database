@@ -1,4 +1,4 @@
-from flask import Flask, render_template,redirect, flash, request, url_for, session
+from flask import Flask, render_template,redirect, flash, request, url_for, session, jsonify
 from flask_mysqldb import MySQL
 import pandas as pd
 import logging
@@ -23,10 +23,10 @@ app.config['SECRET_KEY'] = 'aVerySecretKey'
 
 
 mysql = MySQL(app)
-def runstatement(statement):
+def runstatement(statement, params=None):
     cursor = mysql.connection.cursor()
     try:
-        cursor.execute(statement)
+        cursor.execute(statement, params)
         results = cursor.fetchall()
         mysql.connection.commit()
     except Exception as e:
@@ -152,7 +152,82 @@ def add_criminal():
         flash('You do not have permission to perform this action.')
         return redirect(url_for('home'))
 
-# Remaining routes and functions
+
+@app.route('/search_criminals', methods=['POST'])
+def search_criminals():
+    if 'username' not in session:
+        return redirect(url_for('login'))
+
+    data = request.get_json()
+    if not data or 'criminal_id' not in data:
+        return jsonify({'error': 'No criminal_id provided'}), 400
+
+    criminal_id = data['criminal_id']
+    
+    try:
+        # Fetching data for various aspects related to the crime
+       
+        criminals = runstatement("SELECT * FROM Criminals WHERE Criminal_ID = %s", [criminal_id]).to_dict(orient='records')
+        crime_details = runstatement("SELECT * FROM Crimes WHERE Criminal_ID = %s", [criminal_id]).to_dict(orient='records')
+        alias = runstatement("SELECT * FROM Alias WHERE Criminal_ID = %s", [criminal_id]).to_dict(orient='records')
+        sentence = runstatement("SELECT * FROM Sentences WHERE Criminal_ID = %s", [criminal_id]).to_dict(orient='records')
+
+        # Combining all results in a dictionary
+        results = {
+            'criminals': criminals,
+            'crimes': crime_details,
+            'alias': alias,
+            'sentence': sentence,
+        }
+        return jsonify(results) 
+    except Exception as e:
+        print(f"An error occurred: {e}")
+        return render_template('error.html', error=str(e))
+
+
+@app.route('/update_v_status', methods=['POST'])
+def update_v_status():
+    if 'username' not in session or session.get('role') != 'w':
+        return redirect(url_for('login'))
+
+    criminal_id = request.form['criminal_id']
+    v_status = request.form['v_status']
+
+    try:
+        runstatement("CALL change_criminal_v_status(%s, %s)", (criminal_id, v_status))
+        mysql.connection.commit()
+        return jsonify({'message': 'Victim status updated successfully!'})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/update_p_status', methods=['POST'])
+def update_p_status():
+    if 'username' not in session or session.get('role') != 'w':
+        return redirect(url_for('login'))
+
+    criminal_id = request.form['criminal_id']
+    p_status = request.form['p_status']
+
+    try:
+        runstatement("CALL change_criminal_p_status(%s, %s)", (criminal_id, p_status))
+        mysql.connection.commit()
+        return jsonify({'message': 'Probation status updated successfully!'})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+    
+@app.route('/delete_criminal', methods=['POST'])
+def delete_criminal():
+    if 'username' not in session or session.get('role') != 'w':
+        return redirect(url_for('login'))
+
+    criminal_id = request.form['criminal_id']
+    
+    try:
+        runstatement("CALL delete_criminal(%s)", [criminal_id])
+        return jsonify({'message': 'Criminal record and all related data deleted successfully!'})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
 
 @app.route('/view_crimes')
 def view_crimes():
@@ -243,6 +318,38 @@ def add_officer():
         cursor.close()
     return redirect(url_for('view_officers'))
 
+@app.route('/search_crime', methods=['POST'])
+def search_crime():
+    if 'username' not in session:
+        return redirect(url_for('login'))
+
+    data = request.get_json()
+    if not data or 'crime_id' not in data:
+        return jsonify({'error': 'No crime_id provided'}), 400
+
+    crime_id = data['crime_id']
+    
+    try:
+        # Fetching data for various aspects related to the crime
+        crime_details = runstatement("SELECT * FROM Crimes WHERE Crime_ID = %s", [crime_id]).to_dict(orient='records')
+        criminals = runstatement("SELECT * FROM Criminals WHERE Criminal_ID IN (SELECT Criminal_ID FROM Crimes WHERE Crime_ID = %s)", [crime_id]).to_dict(orient='records')
+        officers = runstatement("SELECT * FROM Officers WHERE Officer_ID IN (SELECT Officer_ID FROM Crime_Officers WHERE Crime_ID = %s)", [crime_id]).to_dict(orient='records')
+        appeals = runstatement("SELECT * FROM Appeals WHERE Crime_ID = %s", [crime_id]).to_dict(orient='records')
+        charges = runstatement("SELECT * FROM Crime_Charges WHERE Crime_ID = %s", [crime_id]).to_dict(orient='records')
+
+        # Combining all results in a dictionary
+        results = {
+            'crimes': crime_details,
+            'criminals': criminals,
+            'officers': officers,
+            'appeals': appeals,
+            'charges': charges
+        }
+        return jsonify(results) 
+    except Exception as e:
+        print(f"An error occurred: {e}")
+        return render_template('error.html', error=str(e))
+
 
 @app.route('/whoarewe')
 def who_are_we():
@@ -317,4 +424,4 @@ def sendEmail(from_email, to_email, subject, message):
 
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(host='0.0.0.0', port=3000, debug=True)

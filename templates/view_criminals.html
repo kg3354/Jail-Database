@@ -67,7 +67,7 @@
                     <th>Zip</th>
                     <th>Phone</th>
                     <th>Victim Status</th>
-                    <th>Parole Status</th>
+                    <th>Probation Status</th>
                 </tr>
             </thead>
             <tbody>
@@ -88,73 +88,247 @@
             </tbody>
         </table>
     </div>
-    {% if role == 'w' %}
-    <div class="content">
-        <h2 style="color: black;">Add a Criminal Record:</h2>
-        <form id="addCriminalsForm" action="/add_criminals" method="POST">
-
-
-            <!-- Form fields -->
-        <label for="last" style="color: black;">Last Name:</label>
-        <input type="text" id="last" name="last" required maxlength="15"><br>
-        
-        <label for="first" style="color: black;">First Name:</label>
-        <input type="text" id="first" name="first" required maxlength="10"><br>
-        
-        <label for="street" style="color: black;">Street:</label>
-        <input type="text" id="street" name="street" required maxlength="30"><br>
-        
-        <label for="city" style="color: black;">City:</label>
-        <input type="text" id="city" name="city" required maxlength="20"><br>
-        
-        <label for="state" style="color: black;">State:</label>
-        <input type="text" id="state" name="state" required maxlength="2"><br>
-        
-        <label for="zip" style="color: black;">Zip:</label>
-        <input type="text" id="zip" name="zip" required maxlength="5"><br>
-        
-        <label for="phone" style="color: black;">Phone:</label>
-        <input type="text" id="phone" name="phone" required maxlength="10"><br>
-        
-        <label for="v_status" style="color: black;">Victim Status (Y/N):</label>
-        <select id="v_status" name="v_status">
-            <option value="Y">Yes</option>
-            <option value="N" selected>No</option>
-        </select><br>
-        
-        <label for="p_status" style="color: black;">Parole Status (Y/N):</label>
-        <select id="p_status" name="p_status">
-            <option value="Y">Yes</option>
-            <option value="N" selected>No</option>
-        </select><br>
-        
-        <input type="submit" value="Add Criminal">
+    <div class="container">
+        <h2>Search for a Criminal by ID</h2>
+        <form id="searchCriminalForm" action="/search_criminals" method="POST">
+            <div class="form-group">
+                <label for="criminal_id" style="color: black;">Criminal ID:</label>
+                <input type="number" class="form-control" id="criminal_id" name="criminal_id" required>
+                <input type="submit" class="btn btn-primary mt-2" value="Search Criminal">
+            </div>
         </form>
-        <div class="message">
+    
+        <!-- Section to dynamically display criminal details -->
+        <div id="criminalDetails" class="mt-3"></div>
+    </div>
+    <script>
+        document.getElementById('searchCriminalForm').onsubmit = function(event) {
+            event.preventDefault(); // Prevent the form from submitting normally
+            var criminalID = document.getElementById('criminal_id').value;
+    
+            fetch('/search_criminals', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({criminal_id: criminalID})
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    console.error('Error:', data.error);
+                    document.getElementById('criminalDetails').innerHTML = '<p>An error occurred while fetching the criminal details.</p>';
+                } else {
+                    displayCriminalDetails(data);
+                }
+            })
+            .catch(error => console.error('Error:', error));
+        };
+    
+        function displayCriminalDetails(data) {
+            var detailsDiv = document.getElementById('criminalDetails');
+            detailsDiv.innerHTML = ''; // Clear previous content
+            Object.keys(data).forEach(key => {
+                const items = data[key];
+                let tableHtml = `<h3>${key.charAt(0).toUpperCase() + key.slice(1)}</h3><table class="table table-bordered table-striped"><thead><tr>`;
+                if (items.length > 0) {
+                    Object.keys(items[0]).forEach(column => {
+                        tableHtml += `<th>${column}</th>`;
+                    });
+                    tableHtml += `</tr></thead><tbody>`;
+                    items.forEach(item => {
+                        tableHtml += `<tr>`;
+                        Object.values(item).forEach(value => {
+                            tableHtml += `<td>${value}</td>`;
+                        });
+                        tableHtml += `</tr>`;
+                    });
+                    tableHtml += `</tbody></table>`;
+                } else {
+                    tableHtml += `<p>No data available for ${key}.</p>`;
+                }
+                detailsDiv.innerHTML += tableHtml;
+            });
+            detailsDiv.style.display = 'block'; // Ensure the details div is visible
+        }
+    </script>
+
+    
+    {% if role == 'w' %}
+    <div class="container mt-4">
+        <h2 class="text-center mb-4" style="color: black;">Add a Criminal Record</h2>
+        <form id="addCriminalsForm" action="/add_criminals" method="POST" class="needs-validation" novalidate>
+            <div class="form-row">
+                <div class="col-md-6 mb-3">
+                    <label for="first">First Name:</label>
+                    <input type="text" class="form-control" id="first" name="first" required maxlength="10">
+                    <div class="invalid-feedback">
+                        First name is required.
+                    </div>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="last">Last Name:</label>
+                    <input type="text" class="form-control" id="last" name="last" required maxlength="15">
+                    <div class="invalid-feedback">
+                        Last name is required.
+                    </div>
+                </div>
+            </div>
+    
+            <div class="form-row">
+                <div class="col-md-6 mb-3">
+                    <label for="street">Street:</label>
+                    <input type="text" class="form-control" id="street" name="street" required maxlength="30">
+                    <div class="invalid-feedback">
+                        Street is required.
+                    </div>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label for="city">City:</label>
+                    <input type="text" class="form-control" id="city" name="city" required maxlength="20">
+                    <div class="invalid-feedback">
+                        City is required.
+                    </div>
+                </div>
+                <div class="col-md-2 mb-3">
+                    <label for="state">State:</label>
+                    <input type="text" class="form-control" id="state" name="state" required maxlength="2">
+                    <div class="invalid-feedback">
+                        State is required.
+                    </div>
+                </div>
+            </div>
+    
+            <div class="form-row">
+                <div class="col-md-3 mb-3">
+                    <label for="zip">Zip:</label>
+                    <input type="text" class="form-control" id="zip" name="zip" required maxlength="5">
+                    <div class="invalid-feedback">
+                        Zip code is required.
+                    </div>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <label for="phone">Phone:</label>
+                    <input type="text" class="form-control" id="phone" name="phone" required maxlength="10">
+                    <div class="invalid-feedback">
+                        Phone number is required.
+                    </div>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <label for="v_status">Victim Status (Y/N):</label>
+                    <select class="form-control" id="v_status" name="v_status">
+                        <option value="Y">Yes</option>
+                        <option value="N" selected>No</option>
+                    </select>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <label for="p_status">Probation Status (Y/N):</label>
+                    <select class="form-control" id="p_status" name="p_status">
+                        <option value="Y">Yes</option>
+                        <option value="N" selected>No</option>
+                    </select>
+                </div>
+            </div>
+    
+            <button class="btn btn-primary" type="submit">Add Criminal</button>
+        </form>
+        <div class="alert alert-success mt-3" style="display: none;">
             <p>Criminal record added successfully!</p>
         </div>
-        <button class="add-more-button" onclick="addMore()">Add More</button>
+        <button class="btn btn-info mt-2" onclick="addMore()" style="display: none;">Add More</button>
+    </div>
+    
+    <script>
+        document.getElementById('addCriminalsForm').onsubmit = function(event) {
+            // vent.preventDefault(); // Prevent form submission
+            document.querySelector('.alert').style.display = 'block';
+            document.querySelector('.btn-info').style.display = 'inline-block'; // Show the 'Add More' button
+        };
+    
+        function addMore() {
+            document.querySelector('.alert').style.display = 'none';
+            document.querySelector('.btn-info').style.display = 'none'; // Hide the 'Add More' button and message
+            document.getElementById('addCriminalsForm').reset(); // Reset form for new input
+            document.getElementById('first').focus();
+        }
+    </script>
+    
+
+
+    {% else %}
+    <div class="content">
+        <p style="color: black;">You do not have permission to report, edit, or cancel a crime. :p</p>
+    </div>
+    {% endif %}
+    {% if role == 'w' %}
+    <div class="container">
+        <h2>Update Criminal Status</h2>
+        <form id="updateVStatusForm" action="/update_v_status" method="POST">
+            <div class="form-group">
+                <label for="criminal_id_v">Criminal ID:</label>
+                <input type="number" class="form-control" id="criminal_id_v" name="criminal_id" required>
+                <label for="v_status">Victim Status (Y/N):</label>
+                <select class="form-control" id="v_status" name="v_status">
+                    <option value="Y">Yes</option>
+                    <option value="N">No</option>
+                </select>
+                <input type="submit" class="btn btn-primary mt-2" value="Update Victim Status">
+            </div>
+        </form>
+
+        <form id="updatePStatusForm" action="/update_p_status" method="POST">
+            <div class="form-group">
+                <label for="criminal_id_p">Criminal ID:</label>
+                <input type="number" class="form-control" id="criminal_id_p" name="criminal_id" required>
+                <label for="p_status">Probation Status (Y/N):</label>
+                <select class="form-control" id="p_status" name="p_status">
+                    <option value="Y">Yes</option>
+                    <option value="N">No</option>
+                </select>
+                <input type="submit" class="btn btn-primary mt-2" value="Update Probation Status">
+            </div>
+        </form>
+    </div>
+    {% endif %}
+    {% if role == 'w' %}
+    <div class="container mt-4">
+        <h2>Delete Criminal Record</h2>
+        <form id="deleteCriminalForm" action="/delete_criminal" method="POST">
+            <div class="form-group">
+                <label for="criminal_id">Criminal ID:</label>
+                <input type="number" class="form-control" id="criminal_id" name="criminal_id" required>
+                <button type="submit" class="btn btn-danger mt-3">Delete Criminal</button>
+            </div>
+        </form>
     </div>
 
     <script>
-        document.getElementById('addCriminalForm').onsubmit = function(event) {
-            event.preventDefault(); // Prevent form submission for the demo
-            document.querySelector('.message').style.display = 'block';
-            document.querySelector('.add-more-button').style.display = 'inline-block'; // Show the Add More button
-        };
+        document.getElementById('deleteCriminalForm').onsubmit = function(event) {
+            event.preventDefault(); // Prevent default form submission
+            var criminalID = document.getElementById('criminal_id').value;
 
-        function addMore() {
-            document.querySelector('.message').style.display = 'none';
-            document.querySelector('.add-more-button').style.display = 'none'; // Hide the Add More button and message
-            document.getElementById('addCriminalForm').reset(); // Reset form for new input
-            document.getElementById('last').focus();
-        }
+            fetch('/delete_criminal', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: `criminal_id=${criminalID}`
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    alert('Error: ' + data.error);
+                } else {
+                    alert(data.message);
+                    document.getElementById('deleteCriminalForm').reset(); // Reset form after successful deletion
+                }
+            })
+            .catch(error => alert('Error: ' + error));
+        };
     </script>
-    {% else %}
-    <div class="content">
-        <p style="color: black;">You do not have permission to report a crime.</p>
-    </div>
     {% endif %}
+
+
 </body>
 </html>
 
