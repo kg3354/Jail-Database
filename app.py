@@ -14,7 +14,7 @@ app = Flask(__name__)
 # Setup logging for debugging
 logging.basicConfig(level=logging.DEBUG)
 
-app.config["MYSQL_HOST"] = '127.0.0.1'
+app.config["MYSQL_HOST"] = '125.564.12.1'
 app.config["MYSQL_USER"] = 'root'
 app.config["MYSQL_PASSWORD"] = ""
 app.config["MYSQL_DB"] = 'jail'
@@ -424,4 +424,4 @@ def sendEmail(from_email, to_email, subject, message):
 
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=3000, debug=True)
+    app.run(host='10.18.176.123', port=8080, debug=True)
