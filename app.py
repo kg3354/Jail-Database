@@ -150,7 +150,7 @@ def add_criminal():
         return redirect(url_for('view_criminals'))
     else:
         flash('You do not have permission to perform this action.')
-        return redirect(url_for('home'))
+        return redirect(url_for('index.html'))
 
 
 @app.route('/search_criminals', methods=['POST'])
@@ -184,48 +184,62 @@ def search_criminals():
         print(f"An error occurred: {e}")
         return render_template('error.html', error=str(e))
 
-
 @app.route('/update_v_status', methods=['POST'])
 def update_v_status():
-    if 'username' not in session or session.get('role') != 'w':
+    if 'username' not in session:
         return redirect(url_for('login'))
 
     criminal_id = request.form['criminal_id']
     v_status = request.form['v_status']
 
     try:
-        runstatement("CALL change_criminal_v_status(%s, %s)", (criminal_id, v_status))
+        cursor = mysql.connection.cursor()
+        sql = "UPDATE Criminals SET V_status = %s WHERE Criminal_ID = %s"
+        cursor.execute(sql, (v_status, criminal_id))
         mysql.connection.commit()
-        return jsonify({'message': 'Victim status updated successfully!'})
+        return redirect(url_for('view_criminals'))
     except Exception as e:
+        mysql.connection.rollback()
         return jsonify({'error': str(e)}), 500
 
 @app.route('/update_p_status', methods=['POST'])
 def update_p_status():
-    if 'username' not in session or session.get('role') != 'w':
+    if 'username' not in session:
         return redirect(url_for('login'))
 
     criminal_id = request.form['criminal_id']
     p_status = request.form['p_status']
 
     try:
-        runstatement("CALL change_criminal_p_status(%s, %s)", (criminal_id, p_status))
+        cursor = mysql.connection.cursor()
+        sql = "UPDATE Criminals SET P_status = %s WHERE Criminal_ID = %s"
+        cursor.execute(sql, (p_status, criminal_id))
         mysql.connection.commit()
-        return jsonify({'message': 'Probation status updated successfully!'})
+        return redirect(url_for('view_criminals'))
     except Exception as e:
+        mysql.connection.rollback()
         return jsonify({'error': str(e)}), 500
     
+
 @app.route('/delete_criminal', methods=['POST'])
 def delete_criminal():
-    if 'username' not in session or session.get('role') != 'w':
+    if 'username' not in session:
         return redirect(url_for('login'))
 
-    criminal_id = request.form['criminal_id']
-    
+    criminal_id = request.form.get('criminal_id')
+    if not criminal_id or not criminal_id.isdigit():
+        return jsonify({'error': 'Invalid Criminal ID'}), 400  # Ensuring it is a digit
+
     try:
-        runstatement("CALL delete_criminal(%s)", [criminal_id])
-        return jsonify({'message': 'Criminal record and all related data deleted successfully!'})
+        cursor = mysql.connection.cursor()
+        cursor.execute("DELETE FROM Sentences WHERE Criminal_ID = %s", [criminal_id])
+        cursor.execute("DELETE FROM Alias WHERE Criminal_ID = %s", [criminal_id])
+        cursor.execute("DELETE FROM Crimes WHERE Criminal_ID = %s", [criminal_id])
+        cursor.execute("DELETE FROM Criminals WHERE Criminal_ID = %s", [criminal_id])
+        mysql.connection.commit()
+        return redirect(url_for('view_criminals'))
     except Exception as e:
+        mysql.connection.rollback()
         return jsonify({'error': str(e)}), 500
 
 
