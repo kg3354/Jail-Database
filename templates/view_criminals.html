@@ -300,32 +300,9 @@
                 <button type="submit" class="btn btn-danger mt-3">Delete Criminal</button>
             </div>
         </form>
+        
     </div>
-
-    <script>
-        document.getElementById('deleteCriminalForm').onsubmit = function(event) {
-            event.preventDefault(); // Prevent default form submission
-            var criminalID = document.getElementById('criminal_id').value;
-
-            fetch('/delete_criminal', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                },
-                body: `criminal_id=${criminalID}`
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.error) {
-                    alert('Error: ' + data.error);
-                } else {
-                    alert(data.message);
-                    document.getElementById('deleteCriminalForm').reset(); // Reset form after successful deletion
-                }
-            })
-            .catch(error => alert('Error: ' + error));
-        };
-    </script>
+    
     {% endif %}
 
 
