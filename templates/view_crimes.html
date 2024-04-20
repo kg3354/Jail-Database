@@ -180,47 +180,68 @@
 
     </script>
     
-
-    
     {% if role == 'w' %}
-    <div class="content">
-        <h2 style="color: black;">Report a Crime</h2>
-        
-        <form id="reportCrimeForm" action="/report_crime" method="POST">
-            <label for="criminal_id" style="color: black;">Criminal ID:</label>
-            <input type="number" id="criminal_id" name="criminal_id" required max="999999" min="0" step="1"><br>
-            
-            <label for="classification" style="color: black;">Classification (F/M/O/U):</label>
-            <select id="classification" name="classification" required>
-                <option value="F">Felony</option>
-                <option value="M">Misdemeanor</option>
-                <option value="O">Other</option>
-                <option value="U" selected>Unspecified</option>
-            </select><br>
-            
-            <label for="date_charged" style="color: black;">Date Charged:</label>
-            <input type="date" id="date_charged" name="date_charged" required><br>
-            
-            <label for="crime_status" style="color: black;">Crime Status (CL/CA/IA):</label>
-            <select id="crime_status" name="crime_status" required>
-                <option value="CL">Closed</option>
-                <option value="CA">Case Active</option>
-                <option value="IA">Inactive</option>
-            </select><br>
-            
-            <label for="hearing_date" style="color: black;">Hearing Date:</label>
-            <input type="date" id="hearing_date" name="hearing_date"><br> <!-- Optional -->
-            
-            <label for="appeal_cut_date" style="color: black;">Appeal Cut Date:</label>
-            <input type="date" id="appeal_cut_date" name="appeal_cut_date"><br> <!-- Optional -->
-            
-            <input type="submit" value="Report Crime">
+    <div class="container mt-4">
+        <h2 class="text-center mb-4" style="color: black;">Report a New Crime</h2>
+        <form id="reportCrimeForm" action="/report_crime" method="POST" class="needs-validation" novalidate>
+            <div class="form-row">
+                <div class="col-md-6 mb-3">
+                    <label for="criminal_id">Criminal ID:</label>
+                    <input type="number" class="form-control" id="criminal_id" name="criminal_id" required max="999999" min="0" step="1">
+                    <div class="invalid-feedback">
+                        Criminal ID is required.
+                    </div>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="classification">Classification (F/M/O/U):</label>
+                    <select class="form-control" id="classification" name="classification" required>
+                        <option value="F">Felony</option>
+                        <option value="M">Misdemeanor</option>
+                        <option value="O">Other</option>
+                        <option value="U" selected>Unspecified</option>
+                    </select>
+                    <div class="invalid-feedback">
+                        Please choose a classification.
+                    </div>
+                </div>
+            </div>
+    
+            <div class="form-row">
+                <div class="col-md-6 mb-3">
+                    <label for="date_charged">Date Charged:</label>
+                    <input type="date" class="form-control" id="date_charged" name="date_charged" required>
+                    <div class="invalid-feedback">
+                        Date charged is required.
+                    </div>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="crime_status">Crime Status (CL/CA/IA):</label>
+                    <select class="form-control" id="crime_status" name="crime_status" required>
+                        <option value="CL">Closed</option>
+                        <option value="CA">Case Active</option>
+                        <option value="IA">Inactive</option>
+                    </select>
+                    <div class="invalid-feedback">
+                        Please select a crime status.
+                    </div>
+                </div>
+            </div>
+    
+            <div class="form-row">
+                <div class="col-md-6 mb-3">
+                    <label for="hearing_date">Hearing Date (optional):</label>
+                    <input type="date" class="form-control" id="hearing_date" name="hearing_date">
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="appeal_cut_date">Appeal Cut Date (optional):</label>
+                    <input type="date" class="form-control" id="appeal_cut_date" name="appeal_cut_date">
+                </div>
+            </div>
+    
+            <button class="btn btn-primary" type="submit">Report Crime</button>
         </form>
-        <div class="message">
-            <p>Crime reported successfully!</p>
-        </div>
-        <button class="add-more-button" onclick="addMore()">Report Another Crime</button>
     </div>
+    
     
 
 
@@ -244,6 +265,31 @@
         <p style="color: black;">You do not have permission to report a crime.</p>
     </div>
     {% endif %}
+    {% if role == 'w' %}
+    <div class="container mt-3">
+        <h2>Update Crime Status</h2>
+        <form action="/modify_crime_status" method="POST">
+            <input type="number" name="crime_id" placeholder="Enter Crime ID" required>
+            <select name="new_status">
+                <option value="CL">Closed</option>
+                <option value="CA">Case Active</option>
+                <option value="IA">Inactive</option>
+            </select>
+            <button type="submit">Update Status</button>
+        </form>
+    </div>
+    {% endif %}
+    {% if role == 'w' %}
+    <div class="container mt-3">
+        <h2>Delete Crime Record</h2>
+        <form action="/delete_crime" method="POST">
+            <input type="number" name="crime_id" placeholder="Enter Crime ID" required>
+            <button type="submit" class="btn btn-danger">Delete Crime</button>
+        </form>
+    </div>
+    {% endif %}
+
+
 </body>
 </html>
 
