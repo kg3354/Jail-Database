@@ -1,6 +1,5 @@
 from flask import Flask, render_template,redirect, flash, request, url_for, session, jsonify
 from flask_mysqldb import MySQL
-from flask_sqlalchemy import SQLAlchemy 
 import pandas as pd
 import logging
 import bcrypt
