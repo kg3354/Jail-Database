@@ -85,54 +85,86 @@
     </div>
     
     {% if role == 'w' %}
-    <div class="content">
-        <h2 style="color: black;">Add an Officer</h2>
-        
-        <form id="addOfficerForm" action="/add_officer" method="POST">
-            <label for="last_name" style="color: black;">Last Name:</label>
-            <input type="text" id="last_name" name="last_name" required maxlength="15"><br>
-            
-            <label for="first_name" style="color: black;">First Name:</label>
-            <input type="text" id="first_name" name="first_name" required maxlength="10"><br>
-            
-            <label for="precinct" style="color: black;">Precinct:</label>
-            <input type="text" id="precinct" name="precinct" required maxlength="4"><br>
-            
-            <label for="badge" style="color: black;">Badge:</label>
-            <input type="text" id="badge" name="badge" required maxlength="14"><br>
-            
-            <label for="phone" style="color: black;">Phone Number:</label>
-            <input type="text" id="phone" name="phone" required maxlength="10"><br>
-            
-            <label for="officer_status" style="color: black;">Officer Status (A/I):</label>
-            <select id="officer_status" name="officer_status" required>
-                <option value="A" selected>Active</option>
-                <option value="I">Inactive</option>
-            </select><br>
-            
-            <input type="submit" value="Add Officer">
+    <div class="container mt-4">
+        <h2 class="text-center mb-4" style="color: black;">Add an Officer</h2>
+        <form id="addOfficerForm" action="/add_officer" method="POST" class="needs-validation" novalidate>
+            <div class="form-row">
+                <div class="col-md-6 mb-3">
+                    <label for="last_name" style="color: black;">Last Name:</label>
+                    <input type="text" class="form-control" id="last_name" name="last_name" required maxlength="15">
+                    <div class="invalid-feedback">
+                        Last name is required.
+                    </div>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="first_name" style="color: black;">First Name:</label>
+                    <input type="text" class="form-control" id="first_name" name="first_name" required maxlength="10">
+                    <div class="invalid-feedback">
+                        First name is required.
+                    </div>
+                </div>
+            </div>
+    
+            <div class="form-row">
+                <div class="col-md-6 mb-3">
+                    <label for="precinct" style="color: black;">Precinct:</label>
+                    <input type="text" class="form-control" id="precinct" name="precinct" required maxlength="4">
+                    <div class="invalid-feedback">
+                        Precinct is required.
+                    </div>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="badge" style="color: black;">Badge:</label>
+                    <input type="text" class="form-control" id="badge" name="badge" required maxlength="14">
+                    <div class="invalid-feedback">
+                        Badge is required.
+                    </div>
+                </div>
+            </div>
+    
+            <div class="form-row">
+                <div class="col-md-6 mb-3">
+                    <label for="phone" style="color: black;">Phone Number:</label>
+                    <input type="text" class="form-control" id="phone" name="phone" required maxlength="10">
+                    <div class="invalid-feedback">
+                        Phone number is required.
+                    </div>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="officer_status" style="color: black;">Officer Status (A/I):</label>
+                    <select class="form-control" id="officer_status" name="officer_status" required>
+                        <option value="A" selected>Active</option>
+                        <option value="I">Inactive</option>
+                    </select>
+                    <div class="invalid-feedback">
+                        Please select officer status.
+                    </div>
+                </div>
+            </div>
+    
+            <button class="btn btn-primary" type="submit">Add Officer</button>
         </form>
-        <div class="message">
+        <div class="alert alert-success mt-3" style="display: none;">
             <p>Officer added successfully!</p>
         </div>
-        <button class="add-more-button" onclick="addMoreOfficer()">Add Another Officer</button>
+        <button class="btn btn-info mt-2" onclick="addMoreOfficer()" style="display: none;">Add Another Officer</button>
     </div>
     
-
     <script>
         document.getElementById('addOfficerForm').onsubmit = function(event) {
-            //event.preventDefault(); // Prevent form submission for the demo
-            document.querySelector('.message').style.display = 'block';
-            document.querySelector('.add-more-button').style.display = 'inline-block'; // Show the Add More button
+            // event.preventDefault(); // Prevent form submission
+            document.querySelector('.alert').style.display = 'block';
+            document.querySelector('.btn-info').style.display = 'inline-block'; // Show the 'Add More' button
         };
-
+    
         function addMoreOfficer() {
-            document.querySelector('.message').style.display = 'none';
-            document.querySelector('.add-more-button').style.display = 'none'; // Hide the Add More button and message
+            document.querySelector('.alert').style.display = 'none';
+            document.querySelector('.btn-info').style.display = 'none'; // Hide the 'Add More' button and message
             document.getElementById('addOfficerForm').reset(); // Reset form for new input
-            document.getElementById('last').focus();
+            document.getElementById('last_name').focus();
         }
     </script>
+    
     {% else %}
     <div class="content">
         <p style="color: black;">You do not have permission to add an officer.</p>

@@ -31,7 +31,7 @@
         <nav class="navbar navbar-expand-lg navbar-light bg-light">
             <a class="navbar-brand" style="color: black;">Crime Records</a>
             <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
+                <span class="navbar-toggler-icon">S</span>
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav">
@@ -262,31 +262,74 @@
     </script>
     {% else %}
     <div class="content">
-        <p style="color: black;">You do not have permission to report a crime.</p>
+        <p style="color: black;">You do not have permission to report, edit, or delete a crime.</p>
     </div>
     {% endif %}
     {% if role == 'w' %}
-    <div class="container mt-3">
+    <div class="container">
         <h2>Update Crime Status</h2>
-        <form action="/modify_crime_status" method="POST">
-            <input type="number" name="crime_id" placeholder="Enter Crime ID" required>
-            <select name="new_status">
-                <option value="CL">Closed</option>
-                <option value="CA">Case Active</option>
-                <option value="IA">Inactive</option>
-            </select>
-            <button type="submit">Update Status</button>
+        <form id="updateCrimeStatusForm" action="/modify_crime_status" method="POST" class="needs-validation" novalidate>
+            <div class="form-group">
+                <label for="crime_id">Crime ID:</label>
+                <input type="number" class="form-control" id="crime_id" name="crime_id" placeholder="Enter Crime ID" required>
+                <div class="invalid-feedback">
+                    Crime ID is required.
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="new_status">New Status:</label>
+                <select class="form-control" id="new_status" name="new_status">
+                    <option value="CL">Closed</option>
+                    <option value="CA">Case Active</option>
+                    <option value="IA">Inactive</option>
+                </select>
+                <div class="invalid-feedback">
+                    Please select a new status.
+                </div>
+            </div>
+            <button type="submit" class="btn btn-primary">Update Status</button>
         </form>
     </div>
+    
+    <script>
+        // Validation logic
+        document.getElementById('updateCrimeStatusForm').addEventListener('submit', function(event) {
+            var form = event.target;
+            if (!form.checkValidity()) {
+                event.preventDefault();
+                event.stopPropagation();
+            }
+            form.classList.add('was-validated');
+        });
+    </script>
+    
     {% endif %}
     {% if role == 'w' %}
-    <div class="container mt-3">
+    <div class="container">
         <h2>Delete Crime Record</h2>
-        <form action="/delete_crime" method="POST">
-            <input type="number" name="crime_id" placeholder="Enter Crime ID" required>
+        <form id="deleteCrimeForm" action="/delete_crime" method="POST" class="needs-validation" novalidate>
+            <div class="form-group">
+                <label for="crime_id">Crime ID:</label>
+                <input type="number" class="form-control" id="crime_id" name="crime_id" placeholder="Enter Crime ID" required>
+                <div class="invalid-feedback">
+                    Crime ID is required.
+                </div>
+            </div>
             <button type="submit" class="btn btn-danger">Delete Crime</button>
         </form>
     </div>
+    
+    <script>
+        // Validation logic
+        document.getElementById('deleteCrimeForm').addEventListener('submit', function(event) {
+            var form = event.target;
+            if (!form.checkValidity()) {
+                event.preventDefault();
+                event.stopPropagation();
+            }
+            form.classList.add('was-validated');
+        });
+    </script>    
     {% endif %}
 
 

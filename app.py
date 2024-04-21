@@ -1,5 +1,6 @@
 from flask import Flask, render_template,redirect, flash, request, url_for, session, jsonify
 from flask_mysqldb import MySQL
+from flask_sqlalchemy import SQLAlchemy 
 import pandas as pd
 import logging
 import bcrypt
@@ -15,11 +16,10 @@ app = Flask(__name__)
 logging.basicConfig(level=logging.DEBUG)
 
 app.config["MYSQL_HOST"] = '127.0.0.1'
-app.config["MYSQL_USER"] = 'root'
-app.config["MYSQL_PASSWORD"] = ""
+app.config["MYSQL_USER"] = 'AppUser'
+app.config["MYSQL_PASSWORD"] = "appPassword"
 app.config["MYSQL_DB"] = 'jail'
 app.config['SECRET_KEY'] = 'aVerySecretKey'
-
 
 
 mysql = MySQL(app)
@@ -45,6 +45,9 @@ def runstatement(statement, params=None):
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
+    if 'username' in session:
+        return render_template('index.html')
+    
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password'].encode('utf-8')  # Encode the password to bytes
@@ -82,11 +85,11 @@ def login():
         password = request.form['password'].encode('utf-8')  # Encode the password to bytes
         cursor = mysql.connection.cursor()
         try:
-            cursor.execute("SELECT password FROM users WHERE username = %s", [username])
+            cursor.execute("SELECT password FROM users WHERE username = %s", [username]) # fetch password
             user = cursor.fetchone()
             if user and bcrypt.checkpw(password, user[0].encode('utf-8')):
                 session['username'] = username
-                return redirect(url_for('home'))
+                return redirect(url_for('home')) # login successful
             else:
                 flash('Invalid username or password')
         finally:
