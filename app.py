@@ -292,6 +292,43 @@ def report_crime():
         cursor.close()
     return redirect(url_for('view_crimes'))
 
+@app.route('/modify_crime_status', methods=['POST'])
+def modify_crime_status():
+    if 'username' not in session:
+        return redirect(url_for('login'))
+    crime_id = request.form.get('crime_id')
+    new_status = request.form.get('new_status')
+    
+    try:
+        cursor = mysql.connection.cursor()
+        cursor.execute("UPDATE Crimes SET Crime_status = %s WHERE Crime_ID = %s", (new_status, crime_id))
+        mysql.connection.commit()
+        flash('Crime status updated successfully!')
+    except Exception as e:
+        mysql.connection.rollback()
+        flash(f'Error updating crime status: {e}')
+    finally:
+        cursor.close()
+    return redirect(url_for('view_crimes'))
+
+
+@app.route('/delete_crime', methods=['POST'])
+def delete_crime():
+    if 'username' not in session:
+        return redirect(url_for('login'))
+    crime_id = request.form.get('crime_id')
+    
+    try:
+        cursor = mysql.connection.cursor()
+        cursor.execute("DELETE FROM Crimes WHERE Crime_ID = %s", [crime_id])
+        mysql.connection.commit()
+        flash('Crime deleted successfully!')
+    except Exception as e:
+        mysql.connection.rollback()
+        flash(f'Error deleting crime: {e}')
+    finally:
+        cursor.close()
+    return redirect(url_for('view_crimes'))
 
 @app.route('/search_crime', methods=['POST'])
 def search_crime():
