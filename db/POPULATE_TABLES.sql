@@ -99,8 +99,6 @@ INSERT INTO Crime_codes(Crime_code, Code_description) VALUES
 (710, 'Stalking');
 
 
-
-
 INSERT INTO Appeals (Appeal_ID, Crime_ID, Filing_date, Hearing_date, Appeal_status) VALUES
 (70000, 123340001, '2023-05-01', '2023-06-01', 'P'),
 (70001, 123340001, '2023-05-02', '2023-06-02', 'P'),

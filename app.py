@@ -14,7 +14,7 @@ app = Flask(__name__)
 # Setup logging for debugging
 logging.basicConfig(level=logging.DEBUG)
 
-app.config["MYSQL_HOST"] = '125.564.12.1'
+app.config["MYSQL_HOST"] = '127.0.0.1'
 app.config["MYSQL_USER"] = 'root'
 app.config["MYSQL_PASSWORD"] = ""
 app.config["MYSQL_DB"] = 'jail'
@@ -68,7 +68,7 @@ def register():
         finally:
             cursor.close()
 
-    return render_template('register.html')
+    return render_template('login.html')
 
 
 
@@ -293,45 +293,6 @@ def report_crime():
     return redirect(url_for('view_crimes'))
 
 
-@app.route('/view_officers')
-def view_officers():
-    if 'username' not in session:
-        return redirect(url_for('login'))
-    cursor = mysql.connection.cursor()
-    cursor.execute("SELECT role FROM users WHERE username = %s", [session['username']])
-    role = cursor.fetchone()
-    df = runstatement("SELECT * FROM `officers`")
-    # Convert DataFrame to a list of dictionaries for easier template processing
-    officer_list = df.to_dict(orient='records')
-    return render_template('view_officers.html', officers=officer_list, role=role[0])
-
-@app.route('/add_officer', methods=['POST'])
-def add_officer():
-    if 'username' not in session:
-        return redirect(url_for('login'))
-   
-    try:
-        Last_name = request.form['last_name']
-        First_name = request.form['first_name']
-        Precinct = request.form['precinct']
-        Badge = request.form['badge']
-        Phone = request.form['phone']
-        Officer_status = request.form['officer_status']
-
-        logging.warning('Processing adding new officer')
-        cursor = mysql.connection.cursor()
-        cursor.callproc('new_officer', [Last_name, First_name, Precinct, Badge, Phone, Officer_status])
-        mysql.connection.commit()
-        flash('Officer added successfully!')
-    except Exception as e:
-        mysql.connection.rollback()
-        logging.error(f'Error adding officer: {e}')
-        flash(f'Error adding officer: {e}')
-    finally:
-   
-        cursor.close()
-    return redirect(url_for('view_officers'))
-
 @app.route('/search_crime', methods=['POST'])
 def search_crime():
     if 'username' not in session:
@@ -363,6 +324,47 @@ def search_crime():
     except Exception as e:
         print(f"An error occurred: {e}")
         return render_template('error.html', error=str(e))
+
+
+@app.route('/view_officers')
+def view_officers():
+    if 'username' not in session:
+        return redirect(url_for('login'))
+    cursor = mysql.connection.cursor()
+    cursor.execute("SELECT role FROM users WHERE username = %s", [session['username']])
+    role = cursor.fetchone()
+    df = runstatement("SELECT * FROM `officers`")
+    # Convert DataFrame to a list of dictionaries for easier template processing
+    officer_list = df.to_dict(orient='records')
+    return render_template('view_officers.html', officers=officer_list, role=role[0])
+
+
+@app.route('/add_officer', methods=['POST'])
+def add_officer():
+    if 'username' not in session:
+        return redirect(url_for('login'))
+   
+    try:
+        Last_name = request.form['last_name']
+        First_name = request.form['first_name']
+        Precinct = request.form['precinct']
+        Badge = request.form['badge']
+        Phone = request.form['phone']
+        Officer_status = request.form['officer_status']
+
+        logging.warning('Processing adding new officer')
+        cursor = mysql.connection.cursor()
+        cursor.callproc('new_officer', [Last_name, First_name, Precinct, Badge, Phone, Officer_status])
+        mysql.connection.commit()
+        flash('Officer added successfully!')
+    except Exception as e:
+        mysql.connection.rollback()
+        logging.error(f'Error adding officer: {e}')
+        flash(f'Error adding officer: {e}')
+    finally:
+   
+        cursor.close()
+    return redirect(url_for('view_officers'))
 
 
 @app.route('/whoarewe')
@@ -438,4 +440,4 @@ def sendEmail(from_email, to_email, subject, message):
 
 
 if __name__ == '__main__':
-    app.run(host='192.168.150.1', port=8080, debug=True)
+    app.run(host='0.0.0.0', port=3000, debug=True)
